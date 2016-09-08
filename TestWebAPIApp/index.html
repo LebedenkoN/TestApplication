@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <style>
+        th {
+            background-color: grey;
+            text-align: center;
+            color: white;
+            border: 2px solid black;
+        }
+
+        td {
+            text-align: center;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+<body>
+        <div ng-app="myApp" ng-controller="myCtrl" ng-init="names">
+            <table>
+                <tr>
+                    <th>
+                        Less 10MB
+                    </th>
+                    <th>
+                        10MB - 50MB
+                    </th>
+                    <th>
+                        More 50MB
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        {{less10}}
+                    </td>
+                    <td>
+                        {{beetwen}}
+                    </td>
+                    <td>
+                        {{more50}}
+                    </td>
+                </tr>
+            </table>
+            <div hidden={{error.length >= 0}}>{{error}}</div>
+            Current path:<input type="text" ng-model="path"/>
+            <button ng-click ="getPath()">Browse directory</button>
+            <p>Available Directories</p>
+            <ul>
+                <li ng-repeat="x in directories">
+                    {{ x.FullPath }}
+                </li>
+            </ul>
+            <p>Files</p>
+            <ul>
+                <li ng-repeat="x in files">
+                    {{ x.OriginalPath }}
+                </li>
+            </ul>
+        </div>
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('myCtrl', function ($scope, $http) {
+            $scope.less10 = "0";
+            $scope.more50 = "0";
+            $scope.beetwen = "0";
+            $scope.error = "";
+            $scope.files = [];
+            $scope.directories = [];
+            $scope.getPath = function () {
+                var parameters = {
+                    path: $scope.path
+                };
+                var config = {
+                    params: parameters
+                };
+                $http.get("api/home", config)
+                    .success(function (data, status, headers, config) {
+                        $scope.less10 = data.less10;
+                        $scope.more50 = data.more50;
+                        $scope.beetwen = data.beetwen;
+                        $scope.files = data.files;
+                        $scope.directories = data.subDirs;
+                    }).error(function (data, status, header, config) {
+                        $scope.error = "Error: " + data;
+                    });;
+            };
+        });
+    </script>
+    </body>
+</html>
